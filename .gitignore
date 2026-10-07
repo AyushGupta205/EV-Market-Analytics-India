@@ -1,0 +1,47 @@
+# ==============================================================================
+# EVPulse India: Version Control Exclusions (.gitignore)
+# ==============================================================================
+
+# Byte-compiled / Python execution caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# IDEs and Text Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary browser / Edge testing cache
+edgetemp/
+*.dat
+*.tmp
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Scratch and intermediate artifacts
+scratch/
+
+# Database temporary / journal files
+*.sqlite3-journal
+*.db-journal
+*.db-wal
+*.db-shm

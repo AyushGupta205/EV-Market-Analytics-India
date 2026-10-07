@@ -1,0 +1,35 @@
+state_id,state_name,region,operational_pcs
+1,Andaman & Nicobar Islands,Union Territory / Island,3
+2,Andhra Pradesh,South,327
+3,Arunachal Pradesh,Northeast,9
+4,Assam,Northeast,86
+5,Bihar,East,124
+6,Chandigarh,North,12
+7,Chhattisgarh,Central,149
+8,DNH and DD,West,1
+9,Delhi,North,1886
+10,Goa,West,113
+11,Gujarat,West,476
+12,Haryana,North,377
+13,Himachal Pradesh,North,44
+14,Jammu and Kashmir,North,47
+15,Jharkhand,East,135
+16,Karnataka,South,1041
+17,Kerala,South,852
+18,Ladakh,North,0
+19,Madhya Pradesh,Central,341
+20,Maharashtra,West,3079
+21,Manipur,Northeast,17
+22,Meghalaya,Northeast,21
+23,Mizoram,Northeast,0
+24,Nagaland,Northeast,6
+25,Odisha,East,198
+26,Puducherry,South,23
+27,Punjab,North,158
+28,Rajasthan,North,500
+29,Sikkim,Northeast,2
+30,Tamil Nadu,South,643
+31,Tripura,Northeast,18
+32,Uttar Pradesh,North,582
+33,Uttarakhand,North,76
+34,West Bengal,East,318

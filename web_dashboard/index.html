@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>EVPulse India — Executive EV Analytics Portfolio Dashboard (1920×1080 Full HD)</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js 4.4.1 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app-viewport">
+    
+    <!-- 1. TOP HEADER & COMPACT SLICER STRIP -->
+    <header class="fhd-header" id="fhd-header">
+      <!-- Left: Brand Identity Block -->
+      <div class="header-brand-block">
+        <div class="brand-logo-pill">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="brand-text-stack">
+          <div class="brand-title-row">
+            <span class="brand-title">EVPulse India</span>
+            <span class="coverage-badge">FY22–FY24 (Apr '21 – Mar '24)</span>
+          </div>
+          <span class="brand-subtitle">Electric Vehicle Adoption, Market Trends &amp; Geographic Insights</span>
+        </div>
+      </div>
+
+      <!-- Center: Slicer Filter Controls (Power BI Style Compact Toolbar) -->
+      <div class="header-slicer-block">
+        <div class="slicer-group">
+          <label for="filter-fy" class="slicer-label">Year</label>
+          <select id="filter-fy" class="slicer-select" aria-label="Fiscal Year Slicer">
+            <option value="all">All Years (FY22–FY24)</option>
+          </select>
+        </div>
+
+        <div class="slicer-group">
+          <label for="filter-state" class="slicer-label">State</label>
+          <select id="filter-state" class="slicer-select" aria-label="State Slicer">
+            <option value="all">All States &amp; UTs (34)</option>
+          </select>
+        </div>
+
+        <div class="slicer-group">
+          <label for="filter-cat" class="slicer-label">Category</label>
+          <select id="filter-cat" class="slicer-select" aria-label="Vehicle Category Slicer">
+            <option value="all">All Categories</option>
+            <option value="2W">2-Wheelers (2W)</option>
+            <option value="4W">4-Wheelers (4W)</option>
+          </select>
+        </div>
+
+        <div class="slicer-group">
+          <label for="filter-maker" class="slicer-label">Manufacturer</label>
+          <select id="filter-maker" class="slicer-select" aria-label="Manufacturer Slicer">
+            <option value="all">All Manufacturers (26)</option>
+          </select>
+        </div>
+
+        <button id="btn-reset-filters" class="btn-slicer-reset" title="Reset all slicers and visual selections">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          Reset
+        </button>
+      </div>
+
+      <!-- Right: Geographic Scope & Data Source Metadata -->
+      <div class="header-right-meta">
+        <div class="header-geo-pill" title="National Geographic Scope: 34 States and Union Territories">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#0D9488" stroke-width="2.5" class="geo-pin-icon">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <span class="geo-text">India · 34 States &amp; UTs</span>
+        </div>
+        <div class="header-source-pill" title="Official Data Sources">
+          <span class="source-dot"></span>
+          <span>MoRTH / Vahan · BEE</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Active Filter Notification Bar (Appears when any cross-filter is selected) -->
+    <div id="active-filter-bar" class="active-filter-bar" style="display: none;">
+      <span class="filter-bar-title">Active Filter Context:</span>
+      <div id="active-filter-chips" class="active-filter-chips"></div>
+      <button id="btn-clear-selections" class="btn-clear-selections" title="Clear visual selections">Clear Selections ✕</button>
+    </div>
+
+    <!-- 2. KPI METRICS STRIP (6 PROMINENT CARDS IN 1 ROW WITH POWER BI ICONS) -->
+    <section class="fhd-kpi-strip" aria-label="Executive Key Performance Indicators">
+      <!-- KPI 1: Total EV Registrations -->
+      <div class="kpi-card" id="card-kpi-1">
+        <div class="kpi-header-row">
+          <div class="kpi-icon-box icon-green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <span class="kpi-tag">TOTAL EV REGISTRATIONS</span>
+        </div>
+        <div class="kpi-main">
+          <span class="kpi-number" id="kpi-total-ev">2,066,111</span>
+          <span class="kpi-badge-trend" id="kpi-ev-trend" title="FY24 vs FY23 Growth">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" class="trend-arrow-svg">
+              <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+            +31.5% FY24 vs FY23
+          </span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-sub" id="kpi-total-ev-sub">Across FY2022–FY2024</span>
+        </div>
+      </div>
+
+      <!-- KPI 2: Total Automotive Registrations -->
+      <div class="kpi-card" id="card-kpi-2">
+        <div class="kpi-header-row">
+          <div class="kpi-icon-box icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+          </div>
+          <span class="kpi-tag">TOTAL AUTOMOTIVE REGISTRATIONS</span>
+        </div>
+        <div class="kpi-main">
+          <span class="kpi-number" id="kpi-total-sales">57.2M</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-sub" id="kpi-total-sales-sub">ICE + EV registrations</span>
+        </div>
+      </div>
+
+      <!-- KPI 3: EV Market Share -->
+      <div class="kpi-card" id="card-kpi-3">
+        <div class="kpi-header-row">
+          <div class="kpi-icon-box icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="19" y1="5" x2="5" y2="19"></line>
+              <circle cx="6.5" cy="6.5" r="2.5"></circle>
+              <circle cx="17.5" cy="17.5" r="2.5"></circle>
+            </svg>
+          </div>
+          <span class="kpi-tag">EV MARKET SHARE</span>
+        </div>
+        <div class="kpi-main">
+          <span class="kpi-number highlight-teal" id="kpi-ev-share">3.61%</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-sub" id="kpi-ev-share-sub">Share of recognised auto registrations</span>
+        </div>
+      </div>
+
+      <!-- KPI 4: YoY Growth -->
+      <div class="kpi-card" id="card-kpi-4">
+        <div class="kpi-header-row">
+          <div class="kpi-icon-box icon-green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+          </div>
+          <span class="kpi-tag">YOY GROWTH</span>
+        </div>
+        <div class="kpi-main">
+          <span class="kpi-number highlight-green" id="kpi-yoy-growth">+31.5%</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-sub" id="kpi-yoy-growth-sub">FY24 vs FY23</span>
+        </div>
+      </div>
+
+      <!-- KPI 5: Top EV State -->
+      <div class="kpi-card" id="card-kpi-5">
+        <div class="kpi-header-row">
+          <div class="kpi-icon-box icon-teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <span class="kpi-tag">TOP EV STATE</span>
+        </div>
+        <div class="kpi-main">
+          <span class="kpi-number text-truncate" id="kpi-top-state">Maharashtra</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-sub" id="kpi-top-state-sub">396,045 · 19.2% share</span>
+        </div>
+      </div>
+
+      <!-- KPI 6: Top EV Category -->
+      <div class="kpi-card" id="card-kpi-6">
+        <div class="kpi-header-row">
+          <div class="kpi-icon-box icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="5.5" cy="17.5" r="3.5"></circle>
+              <circle cx="18.5" cy="17.5" r="3.5"></circle>
+              <path d="M15 6h-5a2 2 0 0 0-2 2l-2 5h12l-2-5a2 2 0 0 0-2-2z"></path>
+            </svg>
+          </div>
+          <span class="kpi-tag">TOP EV CATEGORY</span>
+        </div>
+        <div class="kpi-main">
+          <span class="kpi-number" id="kpi-top-cat">2-Wheelers</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-sub" id="kpi-top-cat-sub">1,913,168 · 92.6% share</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. MAIN ANALYTICS GRID (3 HIGH-DENSITY ROWS FIT PERFECTLY IN 1920x1080) -->
+    <main class="fhd-analytics-grid">
+      
+      <!-- === ROW 1: ADOPTION TRAJECTORY, CATEGORY DONUT & ANNUAL GROWTH === -->
+      <div class="grid-row-1">
+        <!-- Visual 1: EV Adoption Trend (45% Width) -->
+        <div class="analytics-card card-trend">
+          <div class="card-header">
+            <div class="card-titles">
+              <span class="card-title-main">EV Adoption Trend</span>
+              <span class="card-title-sub">Monthly &amp; Annual Trajectory</span>
+            </div>
+            <div class="card-controls">
+              <div class="legend-badge">
+                <span class="legend-dot dot-teal"></span>
+                <span id="trend-legend-label">Monthly Registrations</span>
+              </div>
+              <div class="legend-badge">
+                <span class="legend-dot dot-blue"></span>
+                <span>Annual Total</span>
+              </div>
+              <button id="btn-trend-monthly" class="btn-pill-toggle active">Monthly</button>
+              <button id="btn-trend-yearly" class="btn-pill-toggle">Yearly</button>
+            </div>
+          </div>
+          <div class="card-body-chart">
+            <canvas id="chart-trend"></canvas>
+          </div>
+        </div>
+
+        <!-- Visual 2: Category Distribution & Trend (Donut + Side Cards) -->
+        <div class="analytics-card card-category">
+          <div class="card-header">
+            <div class="card-titles">
+              <span class="card-title-main">Category Distribution &amp; Trend</span>
+            </div>
+            <div class="card-controls">
+              <div class="legend-badge">
+                <span class="legend-dot dot-teal"></span>
+                <span id="badge-2w-pct">2W: 92.6%</span>
+              </div>
+              <div class="legend-badge">
+                <span class="legend-dot dot-blue"></span>
+                <span id="badge-4w-pct">4W: 7.4%</span>
+              </div>
+            </div>
+          </div>
+          <div class="category-split-body">
+            <div class="donut-wrapper">
+              <canvas id="chart-category"></canvas>
+              <div class="donut-center-text">
+                <div class="donut-center-label">TOTAL REGISTRATIONS</div>
+                <div class="donut-center-val" id="donut-center-num">2,066,111</div>
+              </div>
+            </div>
+            <div class="category-stats-list">
+              <div class="cat-stat-item" id="btn-filter-2w" title="Filter to 2-Wheelers">
+                <div class="cat-stat-top">
+                  <div class="cat-stat-name">
+                    <span class="legend-dot dot-teal"></span>
+                    <span>2-Wheelers</span>
+                  </div>
+                  <span class="cat-stat-pct pct-teal" id="stat-2w-pct">92.6%</span>
+                </div>
+                <div class="cat-stat-vol" id="stat-2w-vol">1,913,168</div>
+              </div>
+
+              <div class="cat-stat-item" id="btn-filter-4w" title="Filter to 4-Wheelers">
+                <div class="cat-stat-top">
+                  <div class="cat-stat-name">
+                    <span class="legend-dot dot-blue"></span>
+                    <span>4-Wheelers</span>
+                  </div>
+                  <span class="cat-stat-pct pct-blue" id="stat-4w-pct">7.4%</span>
+                </div>
+                <div class="cat-stat-vol" id="stat-4w-vol">152,943</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual 3: Yearly Growth Comparison -->
+        <div class="analytics-card card-growth">
+          <div class="card-header">
+            <div class="card-titles">
+              <span class="card-title-main">Yearly Growth Comparison</span>
+              <span class="card-title-sub" id="yearly-growth-sub">FY2022 — 271.1K · FY2023 — 775.4K · FY2024 — 1.0M</span>
+            </div>
+          </div>
+          <div class="card-body-chart">
+            <canvas id="chart-yearly-growth"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- === ROW 2: GEOGRAPHIC CHOROPLETH, TOP STATES & MATRIX HEATMAP === -->
+      <div class="grid-row-2">
+        <!-- Visual 4: India Geographic Density (Map + Mini Top 5 List) -->
+        <div class="analytics-card card-map">
+          <div class="card-header">
+            <div class="card-titles">
+              <span class="card-title-main">India Geographic Density</span>
+              <span class="card-title-sub">34 States &amp; UTs Penetration</span>
+            </div>
+            <div class="map-legend-compact">
+              <span class="legend-scale">0</span>
+              <div class="legend-gradient-bar"></div>
+              <span class="legend-scale" id="map-legend-max">396.0K</span>
+            </div>
+          </div>
+          <div class="map-split-body">
+            <div class="card-body-map" id="map-container">
+              <svg id="india-map-svg" viewBox="0 0 520 600" preserveAspectRatio="xMidYMid meet"></svg>
+              <div id="map-tooltip" class="map-tooltip-popup" style="display: none;"></div>
+            </div>
+            <div class="map-top5-list">
+              <div class="map-top5-title">Top 5 States by Registrations</div>
+              <div id="map-top5-container" class="map-top5-container">
+                <!-- Dynamically populated via script.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual 5: Top States Ranking -->
+        <div class="analytics-card card-top-states">
+          <div class="card-header">
+            <div class="card-titles">
+              <span class="card-title-main">Top States by EV Registrations</span>
+              <span class="card-title-sub">Leading Regional Adoption Hubs</span>
+            </div>
+            <div class="card-controls">
+              <button id="btn-state-5" class="btn-pill-toggle">Top 5</button>
+              <button id="btn-state-10" class="btn-pill-toggle active">Top 10</button>
+            </div>
+          </div>
+          <div class="card-body-chart">
+            <canvas id="chart-state-ranking"></canvas>
+          </div>
+        </div>
+
+        <!-- Visual 6: State × Category Heatmap Matrix -->
+        <div class="analytics-card card-matrix">
+          <div class="card-header">
+            <div class="card-titles">
+              <span class="card-title-main">State × Category Matrix</span>
+              <span class="card-title-sub">Regional Breakdown (Top 8 States)</span>
+            </div>
+          </div>
+          <div class="card-body-table">
+            <div class="matrix-table-wrap">
+              <table class="fhd-matrix-table" id="matrix-table">
+                <thead>
+                  <tr>
+                    <th style="text-align: left; width: 28%;">STATE / UT</th>
+                    <th style="text-align: right; width: 18%;">2W VOLUME</th>
+                    <th style="text-align: right; width: 17%;">4W VOLUME</th>
+                    <th style="text-align: right; width: 18%;">TOTAL EV</th>
+                    <th style="text-align: right; width: 19%;">2W SHARE</th>
+                  </tr>
+                </thead>
+                <tbody id="matrix-tbody">
+                  <!-- Populated dynamically via script.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- === ROW 3: MANUFACTURER RANKING, MARKET CONCENTRATION & INSIGHTS === -->
+      <div class="grid-row-3">
+        <!-- Visual 7: Manufacturer Ranking -->
+        <div class="analytics-card card-maker">
+          <div class="card-header">
+            <div class="card-titles">
+              <span class="card-title-main">Manufacturer Ranking</span>
+            </div>
+            <div class="card-controls-group">
+              <input type="text" id="maker-search" class="fhd-search-input" placeholder="Search brand...">
+              <div class="card-controls">
+                <button id="btn-maker-all" class="btn-pill-toggle active">All (26)</button>
+                <button id="btn-maker-2w" class="btn-pill-toggle">2W (16)</button>
+                <button id="btn-maker-4w" class="btn-pill-toggle">4W (10)</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body-chart maker-scroll-area" id="maker-scroll-wrapper">
+            <div id="maker-canvas-holder" style="height: 100%; width: 100%; position: relative;">
+              <canvas id="chart-maker"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual 8: Market Concentration (HHI) -->
+        <div class="analytics-card card-concentration">
+          <div class="card-header">
+            <div class="card-titles">
+              <span class="card-title-main">Market Concentration (HHI)</span>
+            </div>
+            <div class="duopoly-pill" id="duopoly-pill">
+              Tata + Mahindra: <strong>85.08% Share</strong>
+            </div>
+          </div>
+          <div class="card-body-split">
+            <div class="hhi-strip-compact">
+              <div class="hhi-box-mini">
+                <div class="hhi-mini-top">
+                  <span class="hhi-label-mini">2W HHI INDEX</span>
+                  <span class="hhi-badge-mini moderate" id="hhi-2w-badge">MODERATE</span>
+                </div>
+                <div class="hhi-val-mini" id="hhi-2w-val">1,335</div>
+                <div class="hhi-sub-mini" id="hhi-2w-sub">OLA ELECTRIC (25.6%), TVS (14.2%), ATHER (10.7%)</div>
+              </div>
+
+              <div class="hhi-box-mini">
+                <div class="hhi-mini-top">
+                  <span class="hhi-label-mini">4W HHI INDEX</span>
+                  <span class="hhi-badge-mini high" id="hhi-4w-badge">HIGH OLIGOPOLY</span>
+                </div>
+                <div class="hhi-val-mini text-blue" id="hhi-4w-val">4,194</div>
+                <div class="hhi-sub-mini" id="hhi-4w-sub">Tata Motors (58.1%), Mahindra & Mahindra (26.9%)</div>
+              </div>
+            </div>
+
+            <!-- Mini Concentration Chart -->
+            <div class="chart-4w-holder">
+              <div class="hhi-chart-sublabel" id="hhi-chart-sublabel">
+                <span>Top 4-Wheeler Manufacturers by Market Share</span>
+                <span class="sublabel-badge">FY22–FY24 Segment Share</span>
+              </div>
+              <div class="canvas-4w-container">
+                <canvas id="chart-4w-concentration"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual 9: Executive Business Insights -->
+        <div class="analytics-card card-insights">
+          <div class="card-header">
+            <div class="card-titles">
+              <span class="card-title-main">Executive Business Insights</span>
+              <span class="card-title-sub">FY22–FY24 Strategic Findings</span>
+            </div>
+            <span class="insight-badge-verified">✔ Verified Metrics</span>
+          </div>
+          <div class="card-body-insights">
+            <div class="insight-grid-2x2">
+              <div class="insight-item" id="insight-adoption">
+                <div class="insight-item-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--teal-primary)" stroke-width="2.5" class="insight-svg-icon">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                  </svg>
+                  <span class="insight-topic">ADOPTION TRAJECTORY</span>
+                </div>
+                <div class="insight-item-text">
+                  Cumulative EV registrations reached 2.07M units across FY22–FY24, with FY24 exceeding 1M annual registrations.
+                </div>
+              </div>
+
+              <div class="insight-item" id="insight-geography">
+                <div class="insight-item-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue-primary)" stroke-width="2.5" class="insight-svg-icon">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  <span class="insight-topic">GEOGRAPHIC CONCENTRATION</span>
+                </div>
+                <div class="insight-item-text">
+                  The top five states — Maharashtra, Karnataka, Tamil Nadu, Gujarat, and Rajasthan — account for 60.06% of total EV registrations.
+                </div>
+              </div>
+
+              <div class="insight-item" id="insight-category">
+                <div class="insight-item-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber-primary)" stroke-width="2.5" class="insight-svg-icon">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span class="insight-topic">CATEGORY DYNAMICS</span>
+                </div>
+                <div class="insight-item-text">
+                  2-Wheelers represent 92.60% of recorded EV registrations (1.91M units), compared with 7.40% for 4-Wheelers.
+                </div>
+              </div>
+
+              <div class="insight-item" id="insight-market">
+                <div class="insight-item-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple-primary)" stroke-width="2.5" class="insight-svg-icon">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                  <span class="insight-topic">MARKET STRUCTURE</span>
+                </div>
+                <div class="insight-item-text">
+                  The 4W segment records an HHI of 4,194. Tata Motors and Mahindra &amp; Mahindra account for 85.08% of 4W market share.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- 4. DATASET SNAPSHOT FOOTER STRIP -->
+    <footer class="fhd-footer" id="fhd-footer">
+      <div class="footer-meta-item">
+        <span class="footer-meta-label">Coverage:</span>
+        <span class="footer-meta-val" id="snap-coverage">FY 2022 – FY 2024 (April 2021 – March 2024)</span>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-meta-item">
+        <span class="footer-meta-label">Records:</span>
+        <span class="footer-meta-val" id="snap-records">3,261 Fact Records</span>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-meta-item">
+        <span class="footer-meta-label">Geographic Scope:</span>
+        <span class="footer-meta-val" id="snap-states">34 States &amp; UTs</span>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-meta-item">
+        <span class="footer-meta-label">Manufacturers:</span>
+        <span class="footer-meta-val" id="snap-makers">26 Brands</span>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-meta-item">
+        <span class="footer-meta-label">Categories:</span>
+        <span class="footer-meta-val" id="snap-categories">2 (2W &amp; 4W)</span>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-meta-item">
+        <span class="footer-meta-label">Sources:</span>
+        <span class="footer-meta-val">MoRTH / Vahan Sewa · BEE</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
